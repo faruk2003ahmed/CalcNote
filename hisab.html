@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>হিসাবখাতা - আপনার ডিজিটাল খাতা</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --font-family: 'Hind Siliguri', sans-serif;
+            --bg-color-dark: #121212; --card-bg-dark: #1e1e1e; --text-color-dark: #e0e0e0; --primary-color-dark: #00a8e8; --secondary-color-dark: #2ecc71; --danger-color-dark: #ff6b6b; --shadow-color-dark: rgba(0, 0, 0, 0.4);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { 
+            font-family: var(--font-family); 
+            transition: background-color 0.4s, color 0.4s;
+            background-color: var(--bg-color-dark);
+            color: var(--text-color-dark);
+            --current-bg: var(--bg-color-dark);
+            --current-card-bg: var(--card-bg-dark);
+            --current-text: var(--text-color-dark);
+            --current-primary: var(--primary-color-dark);
+            --current-danger: var(--danger-color-dark);
+            --current-shadow: var(--shadow-color-dark);
+        }
+
+        /* --- হেডার --- */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background-color: var(--current-card-bg); box-shadow: 0 2px 10px var(--current-shadow); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 1.5rem; font-weight: 700; color: var(--current-primary); }
+
+        /* --- কন্টেইনার এবং কার্ড --- */
+        .container { padding: 1.5rem; max-width: 900px; margin: auto; }
+        .section-card { background: var(--current-card-bg); padding: 1.5rem; border-radius: 15px; box-shadow: 0 4px 15px var(--current-shadow); display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-left: 5px solid var(--current-primary); }
+        .card-content h2 { margin-bottom: 0.5rem; font-size: 1.6rem; }
+        .card-content p { font-size: 1rem; font-weight: 500; }
+        .add-btn { background-color: var(--current-primary); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; font-size: 2.5rem; cursor: pointer; transition: transform 0.2s, background-color 0.2s; display: flex; justify-content: center; align-items: center; }
+        .add-btn:hover { transform: scale(1.1) rotate(90deg); }
+
+        /* --- সার্চ বার --- */
+        .search-container { margin-bottom: 1.5rem; }
+        #search-input { width: 100%; padding: 0.8rem 1rem; border-radius: 8px; border: 1px solid var(--current-shadow); background-color: var(--current-bg); color: var(--current-text); font-size: 1rem; }
+        #search-input:focus { border-color: var(--current-primary); outline: none; }
+
+        /* --- বাকির তালিকা --- */
+        .list-container h3 { display: flex; align-items: center; font-size: 1.5rem; margin-bottom: 1rem; border-bottom: 2px solid var(--current-primary); padding-bottom: 0.5rem; }
+        #due-count { background-color: var(--current-primary); color: white; padding: 2px 10px; font-size: 0.9rem; border-radius: 12px; margin-left: 10px; font-weight: 600; }
+        
+        .due-item { background: var(--current-card-bg); border-radius: 10px; margin-bottom: 1rem; box-shadow: 0 2px 8px var(--current-shadow); overflow: hidden; }
+        .due-item-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; cursor: pointer; }
+        .due-item-header .name { font-size: 1.2rem; font-weight: 600; }
+        .due-balance { font-size: 1.3rem; font-weight: 700; color: var(--current-danger); }
+        .actions { display: flex; gap: 10px; padding: 0 1.5rem 1rem 1.5rem; flex-wrap: wrap;}
+
+        .due-item-details { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out; }
+        .due-item.active .due-item-details { max-height: 1000px; padding: 1rem 1.5rem; border-top: 1px solid var(--current-shadow); }
+        .customer-info { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--current-shadow); line-height: 1.6; }
+        .customer-info p { margin-bottom: 5px; }
+        .details-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+        .details-table th, .details-table td { padding: 8px; border-bottom: 1px solid var(--current-shadow); text-align: left; }
+        .details-table th { font-weight: 600; }
+        .details-summary { text-align: right; font-weight: 600; }
+        .details-summary p { margin-bottom: 5px; }
+
+        /* --- বাটন --- */
+        .primary-btn, .secondary-btn, .danger-btn { padding: 0.6rem 1.2rem; border-radius: 8px; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: opacity 0.2s; }
+        .primary-btn { background-color: var(--current-primary); color: white; }
+        .secondary-btn { background-color: #6c757d; color: white; }
+        .danger-btn { background-color: var(--current-danger); color: white; }
+        .primary-btn:hover, .secondary-btn:hover, .danger-btn:hover { opacity: 0.85; }
+
+        /* --- মডেল (পপ-আপ) --- */
+        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); z-index: 200; display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: var(--current-card-bg); padding: 1.5rem; border-radius: 15px; width: 95%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative; }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 2rem; cursor: pointer; color: var(--current-text); }
+        .modal-content h2 { margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        .form-group input { width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid #ccc; background: var(--current-bg); color: var(--current-text); font-size: 1rem; }
+        .product-item { display: grid; grid-template-columns: 3fr 1fr 2fr; gap: 10px; margin-bottom: 10px; }
+        hr { border: 1px solid var(--current-shadow); margin: 1.5rem 0; }
+        .calculation-area { text-align: right; }
+        .calculation-area h3 { color: var(--current-primary); font-size: 1.5rem; }
+        .empty-list-message { text-align: center; padding: 2rem; opacity: 0.7; }
+
+        @media (max-width: 768px) {
+            .container, .header { padding: 1rem; }
+            .logo { font-size: 1.3rem; }
+            .card-content h2 { font-size: 1.4rem; }
+            .product-item { grid-template-columns: 1fr; }
+            .product-item input { width: 100%; }
+            .actions, .due-item-header, .due-item-details { padding-left: 1rem; padding-right: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1 class="logo">হিসাবখাতা</h1>
+    </header>
+
+    <main class="container">
+        <!-- সেকশন কার্ড -->
+        <div class="section-card">
+            <div class="card-content">
+                <h2>বাকির হিসাব</h2>
+                <p>মোট বাকি: <span id="total-due-amount">০.০০ ৳</span></p>
+            </div>
+            <button class="add-btn" id="add-due-btn">+</button>
+        </div>
+
+        <!-- সার্চ বার -->
+        <div class="search-container">
+            <input type="search" id="search-input" placeholder="নাম বা মোবাইল নম্বর দিয়ে খুঁজুন...">
+        </div>
+
+        <!-- বাকির তালিকা -->
+        <div class="list-container">
+            <h3>বর্তমান বাকির তালিকা <span id="due-count">0</span></h3>
+            <div id="due-list">
+                <p class="empty-list-message">এখনও কোনো বাকির হিসাব যোগ করা হয়নি।</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- নতুন বাকি যোগ করার মডেল -->
+    <div id="due-modal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <form id="due-form">
+                <span class="close-btn">&times;</span>
+                <h2 id="modal-title">নতুন বাকির হিসাব</h2>
+                <input type="hidden" id="due-id">
+                <div class="form-group"><label for="customer-name">গ্রাহকের নাম:</label><input type="text" id="customer-name" required></div>
+                <div class="form-group"><label for="customer-mobile">মোবাইল নম্বর:</label><input type="text" id="customer-mobile"></div>
+                <div class="form-group"><label for="customer-address">ঠিকানা:</label><input type="text" id="customer-address"></div>
+                <hr>
+                <h4>পণ্যের তালিকা</h4>
+                <div id="product-items">
+                    <div class="product-item"><input type="text" placeholder="পণ্যের নাম" class="product-name" required><input type="number" placeholder="পরিমাণ" class="product-qty" value="1" min="1" required><input type="number" placeholder="প্রতিটির দাম" class="product-price" min="0" required></div>
+                </div>
+                <button type="button" id="add-product-btn" class="secondary-btn">আরও পণ্য যোগ করুন</button>
+                <hr>
+                <div class="calculation-area">
+                    <p>মোট মূল্য: <span id="total-amount">0.00</span> ৳</p>
+                    <div class="form-group" style="display: flex; justify-content: flex-end; align-items: center; gap: 10px;"><label for="amount-paid" style="margin: 0;">জমা:</label><input type="number" id="amount-paid" value="0" min="0" style="width: 150px;"></div>
+                    <h3>অবশিষ্ট বাকি: <span id="remaining-due">0.00</span> ৳</h3>
+                </div>
+                <button type="submit" class="primary-btn">হিসাব সেভ করুন</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- টাকা জমার মডেল -->
+    <div id="deposit-modal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <form id="deposit-form">
+                <span class="close-btn">&times;</span>
+                <h2>টাকা জমা দিন</h2>
+                <input type="hidden" id="deposit-due-id">
+                <p>বর্তমান বাকি: <strong id="current-due-display"></strong></p>
+                <div class="form-group"><label for="deposit-amount">জমার পরিমাণ:</label><input type="number" id="deposit-amount" min="0" required></div>
+                <button type="submit" class="primary-btn">জমা করুন</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- লাইব্রেরি স্ক্রিপ্ট -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const addDueBtn = document.getElementById('add-due-btn');
+            const dueModal = document.getElementById('due-modal');
+            const depositModal = document.getElementById('deposit-modal');
+            const dueForm = document.getElementById('due-form');
+            const addProductBtn = document.getElementById('add-product-btn');
+            const dueListDiv = document.getElementById('due-list');
+            const searchInput = document.getElementById('search-input');
+
+            // --- মডেল খোলা ও বন্ধ করা ---
+            const openModal = (modal) => modal.style.display = 'flex';
+            const closeModal = (modal) => modal.style.display = 'none';
+            addDueBtn.addEventListener('click', () => {
+                dueForm.reset(); document.getElementById('modal-title').innerText = 'নতুন বাকির হিসাব';
+                document.getElementById('product-items').innerHTML = createProductItemHtml();
+                updateTotals(); openModal(dueModal);
+            });
+            [dueModal, depositModal].forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('modal-backdrop') || e.target.classList.contains('close-btn')) closeModal(modal);
+                });
+            });
+
+            const createProductItemHtml = () => `<div class="product-item"><input type="text" placeholder="পণ্যের নাম" class="product-name" required><input type="number" placeholder="পরিমাণ" class="product-qty" value="1" min="1" required><input type="number" placeholder="প্রতিটির দাম" class="product-price" min="0" required></div>`;
+            addProductBtn.addEventListener('click', () => document.getElementById('product-items').insertAdjacentHTML('beforeend', createProductItemHtml()));
+
+            const updateTotals = () => {
+                let total = 0;
+                document.querySelectorAll('.product-item').forEach(item => {
+                    total += (parseFloat(item.querySelector('.product-qty').value) || 0) * (parseFloat(item.querySelector('.product-price').value) || 0);
+                });
+                const paid = parseFloat(document.getElementById('amount-paid').value) || 0;
+                document.getElementById('total-amount').innerText = total.toFixed(2);
+                document.getElementById('remaining-due').innerText = (total - paid).toFixed(2);
+            };
+            dueModal.addEventListener('input', updateTotals);
+            
+            // --- ডেটাবেস এবং হিসাব সেভ ---
+            const dueStore = localforage.createInstance({ name: 'dues' });
+            dueForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const products = Array.from(document.querySelectorAll('.product-item')).map(item => ({ name: item.querySelector('.product-name').value, qty: parseFloat(item.querySelector('.product-qty').value), price: parseFloat(item.querySelector('.product-price').value) }));
+                const total = products.reduce((sum, p) => sum + (p.qty * p.price), 0);
+                const paid = parseFloat(document.getElementById('amount-paid').value);
+                const dueData = { id: document.getElementById('due-id').value || Date.now().toString(), customerName: document.getElementById('customer-name').value, customerMobile: document.getElementById('customer-mobile').value, customerAddress: document.getElementById('customer-address').value, products, totalAmount: total, amountPaid: paid, remainingDue: total - paid, createdAt: new Date().toISOString() };
+                await dueStore.setItem(dueData.id, dueData);
+                closeModal(dueModal); renderDueList();
+            });
+
+            const formatEnglishDateTime = (isoString) => {
+                const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+                return new Date(isoString).toLocaleString('en-US', options);
+            };
+            
+            // --- তালিকা রেন্ডার করা ---
+            const renderDueList = async (searchTerm = '') => {
+                dueListDiv.innerHTML = '';
+                let allDues = [];
+                await dueStore.iterate(value => { if(value.remainingDue > 0) allDues.push(value); });
+
+                const filteredDues = allDues.filter(due => 
+                    due.customerName.toLowerCase().includes(searchTerm) ||
+                    (due.customerMobile && due.customerMobile.toLowerCase().includes(searchTerm))
+                );
+
+                document.getElementById('due-count').innerText = filteredDues.length;
+
+                if (filteredDues.length === 0) {
+                    dueListDiv.innerHTML = `<p class="empty-list-message">${searchTerm ? 'এই নামে কোনো বাকি খুঁজে পাওয়া যায়নি।' : 'এখনও কোনো বাকির হিসাব যোগ করা হয়নি।'}</p>`;
+                } else {
+                    filteredDues.sort((a,b) => b.remainingDue - a.remainingDue).forEach(due => {
+                        const dueItemEl = document.createElement('div');
+                        dueItemEl.className = 'due-item';
+                        dueItemEl.dataset.id = due.id;
+                        dueItemEl.innerHTML = `
+                            <div class="due-item-header">
+                                <div>
+                                    <div class="name">${due.customerName}</div>
+                                    <div class="date" style="font-size:0.8rem; opacity:0.7;">${formatEnglishDateTime(due.createdAt)}</div>
+                                </div>
+                                <div class="due-balance">${due.remainingDue.toFixed(2)} ৳</div>
+                            </div>
+                            <div class="due-item-details">
+                                <div class="customer-info">
+                                    <p><strong>মোবাইল:</strong> ${due.customerMobile || 'N/A'}</p>
+                                    <p><strong>ঠিকানা:</strong> ${due.customerAddress || 'N/A'}</p>
+                                </div>
+                                <table class="details-table">
+                                    <thead><tr><th>পণ্য</th><th>পরিমাণ</th><th>দাম</th></tr></thead>
+                                    <tbody>${due.products.map(p => `<tr><td>${p.name}</td><td>${p.qty}</td><td>${(p.qty * p.price).toFixed(2)}</td></tr>`).join('')}</tbody>
+                                </table>
+                                <div class="details-summary">
+                                    <p>মোট মূল্য: ${due.totalAmount.toFixed(2)} ৳</p>
+                                    <p>জমা: ${due.amountPaid.toFixed(2)} ৳</p>
+                                </div>
+                            </div>
+                            <div class="actions">
+                                <button class="primary-btn deposit-btn">টাকা জমা</button>
+                                <button class="secondary-btn receipt-btn">রসিদ</button>
+                                <button class="danger-btn delete-btn">ডিলিট</button>
+                            </div>
+                        `;
+                        dueListDiv.appendChild(dueItemEl);
+                    });
+                }
+                updateTotalDueAmount();
+            };
+
+            // --- সার্চ ইনপুট ইভেন্ট ---
+            searchInput.addEventListener('input', (e) => {
+                renderDueList(e.target.value.trim().toLowerCase());
+            });
+            
+            const updateTotalDueAmount = async () => {
+                let totalDue = 0;
+                await dueStore.iterate(value => { totalDue += value.remainingDue; });
+                document.getElementById('total-due-amount').innerText = `${totalDue.toFixed(2)} ৳`;
+            };
+
+            dueListDiv.addEventListener('click', async (e) => {
+                const dueItem = e.target.closest('.due-item');
+                if (!dueItem) return;
+                const dueId = dueItem.dataset.id;
+
+                if (e.target.closest('.due-item-header')) { dueItem.classList.toggle('active'); }
+                if (e.target.classList.contains('deposit-btn')) {
+                    const due = await dueStore.getItem(dueId);
+                    document.getElementById('deposit-due-id').value = dueId;
+                    document.getElementById('current-due-display').innerText = `${due.remainingDue.toFixed(2)} ৳`;
+                    openModal(depositModal);
+                }
+                if (e.target.classList.contains('delete-btn')) {
+                    if (confirm('আপনি কি নিশ্চিতভাবে এই হিসাবটি মুছে ফেলতে চান?')) { await dueStore.removeItem(dueId); renderDueList(searchInput.value.trim().toLowerCase()); }
+                }
+                if (e.target.classList.contains('receipt-btn')) { generateReceipt(dueId); }
+            });
+
+            document.getElementById('deposit-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const dueId = document.getElementById('deposit-due-id').value;
+                const depositAmount = parseFloat(document.getElementById('deposit-amount').value);
+                const due = await dueStore.getItem(dueId);
+                due.amountPaid += depositAmount; due.remainingDue -= depositAmount;
+                await dueStore.setItem(dueId, due);
+                this.reset(); closeModal(depositModal); renderDueList(searchInput.value.trim().toLowerCase());
+            });
+
+            const generateReceipt = async (dueId) => {
+                const due = await dueStore.getItem(dueId);
+                const { jsPDF } = window.jspdf;
+                const receiptHTML = `<div id="receipt" style="padding: 20px; font-family: Arial, sans-serif; width: 400px; border: 1px solid #ccc; background: #fff; color: #000;">
+                        <h2 style="text-align: center; color: #333;">হিসাব রসিদ</h2><hr>
+                        <p><strong>Customer Name:</strong> ${due.customerName}</p><p><strong>Mobile:</strong> ${due.customerMobile || 'N/A'}</p><p><strong>Address:</strong> ${due.customerAddress || 'N/A'}</p><p><strong>Date:</strong> ${formatEnglishDateTime(due.createdAt)}</p><hr>
+                        <h3 style="margin-top: 20px;">Product Details:</h3>
+                        <table style="width: 100%; border-collapse: collapse;"><thead><tr style="background: #eee;"><th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Product</th><th style="padding: 8px; border: 1px solid #ddd;">Qty</th><th style="padding: 8px; border: 1px solid #ddd;">Price</th><th style="padding: 8px; border: 1px solid #ddd;">Total</th></tr></thead>
+                        <tbody>${due.products.map(p => `<tr><td style="padding: 8px; border: 1px solid #ddd;">${p.name}</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${p.qty}</td><td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${p.price.toFixed(2)}</td><td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${(p.qty * p.price).toFixed(2)}</td></tr>`).join('')}</tbody></table>
+                        <div style="margin-top: 20px; text-align: right;"><p><strong>Total Amount:</strong> ${due.totalAmount.toFixed(2)} BDT</p><p><strong>Amount Paid:</strong> ${due.amountPaid.toFixed(2)} BDT</p><h3 style="color: #d9534f;">Remaining Due: ${due.remainingDue.toFixed(2)} BDT</h3></div>
+                        <p style="text-align: center; font-size: 12px; margin-top: 20px;">Generated by Hisabkhata</p></div>`;
+                const container = document.createElement('div');
+                container.style.position = 'absolute'; container.style.left = '-9999px'; container.innerHTML = receiptHTML; document.body.appendChild(container);
+                const canvas = await html2canvas(container.querySelector('#receipt'));
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF();
+                const imgProps = pdf.getImageProperties(imgData); const pdfWidth = pdf.internal.pageSize.getWidth(); const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save(`${due.customerName}_receipt.pdf`);
+                document.body.removeChild(container);
+            };
+            renderDueList();
+        });
+    </script>
+</body>
+</html>
